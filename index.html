@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Havacılığa Giriş Quiz Pro</title>
+    <title>Havacılık Giriş Quiz</title>
     <style>
         :root {
             --primary: #0056b3;
@@ -41,15 +41,61 @@
             max-height: 95vh;
         }
 
+        /* Üst Bilgi Barı */
         .info-bar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
             font-weight: bold;
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
+        }
+
+        /* Toggle Switch (Anahtar) Tasarımı */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            user-select: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 20px;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input[type="checkbox"]:checked + .toggle-switch {
+            background-color: var(--success);
+        }
+
+        input[type="checkbox"]:checked + .toggle-switch::after {
+            transform: translateX(20px);
+        }
+
+        input[type="checkbox"] {
+            display: none;
         }
 
         .quiz-content {
@@ -81,6 +127,7 @@
             font-size: 0.95rem;
             text-align: left;
             width: 100%;
+            position: relative;
         }
 
         .option-btn:hover:not(:disabled) {
@@ -188,8 +235,9 @@
             box-shadow: 0 5px 15px rgba(0,86,179,0.3);
         }
 
-        .score-number { font-size: 2.2rem; font-weight: bold; }
-        .score-percent { font-size: 1rem; opacity: 0.9; }
+        .score-number { font-size: 2.2rem; font-weight: bold; display: none; /* Puan gizlendi, sadece yüzde */ }
+        .score-percent { font-size: 2rem; font-weight: bold; }
+        .score-label { font-size: 0.9rem; opacity: 0.8; margin-top: 5px; }
 
         /* Scrollbar Styling */
         ::-webkit-scrollbar { width: 8px; }
@@ -203,7 +251,12 @@
 <div class="container" id="quiz-container">
     <div class="info-bar">
         <span id="question-count">Soru: 1/50</span>
-        <span id="score-display">Puan: 0</span>
+        
+        <label class="toggle-container">
+            Doğruysa Otomatik Geç
+            <input type="checkbox" id="auto-advance-toggle">
+            <div class="toggle-switch"></div>
+        </label>
     </div>
 
     <div class="quiz-content">
@@ -230,8 +283,8 @@
 <div class="container" id="result-screen">
     <h1 id="result-title">Test Tamamlandı!</h1>
     <div class="score-circle">
-        <span class="score-number" id="final-score">0</span>
         <span class="score-percent" id="final-percent">%0</span>
+        <span class="score-label">BAŞARI</span>
     </div>
     <p id="result-message" style="font-size:1.1rem; margin-bottom: 20px;"></p>
     
@@ -242,7 +295,7 @@
 </div>
 
 <script>
-    // Tüm soruların ana listesi (Sabit Veri)
+    // Tüm soruların ana listesi
     const masterQuestions = [
         { q: "Havacılık faaliyetleri kaça ayrılır?", a: ["Üçe", "İkiye", "Dörde", "Beşe"], correct: 1 },
         { q: "Devlet hava araçları nelerdir?", a: ["Askerî, gümrük, polis", "Yolcu, kargo, eğitim", "Tarım, balon, planör", "Helikopter, jet, planör"], correct: 0 },
@@ -297,7 +350,7 @@
     ];
 
     // Değişkenler
-    let activeQuestions = []; // Şu anda çözülen soru seti (tüm liste veya sadece yanlışlar)
+    let activeQuestions = []; // Şu anda çözülen soru seti
     let currentQuestionIndex = 0;
     let questionStatus = []; // 'correct', 'wrong', null
     let score = 0;
@@ -308,14 +361,14 @@
     const nextBtn = document.getElementById("next-btn");
     const prevBtn = document.getElementById("prev-btn");
     const questionCount = document.getElementById("question-count");
-    const scoreDisplay = document.getElementById("score-display");
     const quizContainer = document.getElementById("quiz-container");
     const resultScreen = document.getElementById("result-screen");
     const navGrid = document.getElementById("nav-grid");
     const resultTitle = document.getElementById("result-title");
     const retryWrongBtn = document.getElementById("retry-wrong-btn");
+    const autoAdvanceToggle = document.getElementById("auto-advance-toggle");
 
-    // Yardımcı Fonksiyon: Diziyi karıştır (Fisher-Yates Shuffle)
+    // Yardımcı Fonksiyon: Karıştırma
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -361,8 +414,8 @@
                 if (index === currentQ.correct) {
                     btn.classList.add("correct");
                 }
-                // Yanlış cevaplanan butonu tekrar kırmızı göstermek için ekstra mantık eklenebilir
-                // Ancak basitlik için sadece doğruyu gösteriyoruz.
+                // Yanlış cevaplanan butonu isterseniz burada işaretleyebilirsiniz
+                // Şu an sadece doğruyu gösteriyoruz temiz görünüm için.
             } else {
                 btn.onclick = () => checkAnswer(index, btn);
             }
@@ -390,21 +443,33 @@
         const correctIndex = currentQ.correct;
         const buttons = optionsContainer.getElementsByClassName("option-btn");
 
+        // Tüm butonları kilitle
         for (let button of buttons) {
             button.disabled = true;
         }
 
         if (selectedIndex === correctIndex) {
+            // DOĞRU CEVAP
             btn.classList.add("correct");
             questionStatus[currentQuestionIndex] = 'correct';
             score++;
+            
+            // Otomatik geçiş kontrolü
+            if (autoAdvanceToggle.checked) {
+                // Kullanıcı yeşil rengi görsün diye hafif bir gecikme (1000ms = 1 saniye)
+                setTimeout(() => {
+                    nextQuestion();
+                }, 1000);
+            }
+
         } else {
+            // YANLIŞ CEVAP
             btn.classList.add("wrong");
             buttons[correctIndex].classList.add("correct");
             questionStatus[currentQuestionIndex] = 'wrong';
+            // Yanlış cevapta otomatik geçiş yapmıyoruz ki kullanıcı hatasını görsün.
         }
 
-        scoreDisplay.textContent = `Puan: ${score}`;
         renderGrid();
     }
 
@@ -433,14 +498,12 @@
         quizContainer.style.display = "none";
         resultScreen.style.display = "flex";
         
-        const finalScoreElem = document.getElementById("final-score");
         const finalPercentElem = document.getElementById("final-percent");
         const resultMessage = document.getElementById("result-message");
 
-        finalScoreElem.textContent = score;
         const total = activeQuestions.length;
         const percent = Math.round((score / total) * 100);
-        finalPercentElem.textContent = `%${percent} Başarı`;
+        finalPercentElem.textContent = `%${percent}`;
 
         // Yanlış cevap var mı kontrol et
         const hasWrongAnswers = questionStatus.includes('wrong');
@@ -467,50 +530,37 @@
         }
     }
 
-    // TÜM TESTİ YENİDEN BAŞLAT (KARIŞIK)
     function startFullQuiz() {
-        // Master listeyi kopyala ki orijinali bozulmasın
         activeQuestions = [...masterQuestions];
-        // Karıştır
         shuffleArray(activeQuestions);
-        
         resetQuizState();
         resultTitle.textContent = "Genel Tekrar Testi";
     }
 
-    // SADECE YANLIŞLARI ÇÖZ
     function startWrongQuiz() {
-        // Mevcut aktif sorulardan, durumu 'wrong' olanları filtrele
         const wrongQuestions = activeQuestions.filter((q, index) => questionStatus[index] === 'wrong');
-        
         if(wrongQuestions.length === 0) {
             alert("Yanlış cevaplanmış soru bulunamadı.");
             return;
         }
-
         activeQuestions = wrongQuestions;
-        // Yanlışları da kendi içinde karıştır ki ezber olmasın
         shuffleArray(activeQuestions);
-        
         resetQuizState();
         resultTitle.textContent = "Hata Düzeltme Modu";
     }
 
-    // Ortak Sıfırlama Fonksiyonu
     function resetQuizState() {
         currentQuestionIndex = 0;
         score = 0;
-        // Yeni soru sayısı kadar boş durum dizisi oluştur
         questionStatus = new Array(activeQuestions.length).fill(null);
         
-        scoreDisplay.textContent = "Puan: 0";
         resultScreen.style.display = "none";
         quizContainer.style.display = "flex";
         
         loadQuestion();
     }
 
-    // Sayfa açıldığında tam test ile başla
+    // Başlangıç
     window.onload = startFullQuiz;
 
 </script>
