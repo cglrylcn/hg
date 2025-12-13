@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Havacılığa Giriş Quiz Pro</title>
+    <title>Havacılığa Giriş Quiz</title>
     <style>
         :root {
             --primary: #0056b3;
@@ -452,18 +452,12 @@
         const percent = Math.round((score / questions.length) * 100);
         finalPercentElem.textContent = `%${percent} Başarı`;
 
-        if (percent >= 90) {
-            resultMessage.textContent = "Mükemmel! Neredeyse hatasız.";
-            resultMessage.style.color = "var(--success)";
-        } else if (percent >= 70) {
+        if (percent >= 70) {
             resultMessage.textContent = "Gayet iyi, tebrikler!";
-            resultMessage.style.color = "var(--primary)";
-        } else if (percent >= 50) {
+            resultMessage.style.color = "var(--success)";
+        } else {
             resultMessage.textContent = "Fena değil, ama biraz daha tekrar yapabilirsin.";
             resultMessage.style.color = "#d68910";
-        } else {
-            resultMessage.textContent = "Konuları tekrar çalışman gerekiyor.";
-            resultMessage.style.color = "var(--error)";
         }
     }
 
