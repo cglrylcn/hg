@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Havacılık Giriş Quiz</title>
+    <title>Havacılık Quiz Pro - Tam Liste Görünüm</title>
     <style>
         :root {
             --primary: #0056b3;
-            --secondary: #f0f4f8;
-            --accent: #00a8ff;
+            --secondary: #f4f6f9;
             --text: #333;
             --success: #28a745;
             --error: #dc3545;
-            --warning: #ffc107;
             --neutral: #e9ecef;
+            --warning: #ffc107;
         }
 
         body {
@@ -22,93 +21,92 @@
             color: var(--text);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: center; /* Dikey ortalama */
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 20px 10px; /* Mobilde kenar boşluğu */
+            box-sizing: border-box;
         }
 
         .container {
             background: white;
             padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
             width: 100%;
             max-width: 700px;
-            position: relative;
             display: flex;
             flex-direction: column;
-            max-height: 95vh;
+            /* Yükseklik ayarları değiştirildi: İçeriğe göre uzasın */
+            height: auto; 
+            max-height: 95vh; /* Ekranın %95'ini geçmesin */
+            overflow-y: auto; /* Eğer sığmazsa ana kutu scroll olsun */
         }
 
-        /* Üst Bilgi Barı */
+        /* Üst Bilgi */
         .info-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
-            font-weight: bold;
-            color: #666;
-            font-size: 0.95rem;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
+            flex-shrink: 0;
         }
 
-        /* Toggle Switch (Anahtar) Tasarımı */
+        /* Toggle Switch */
         .toggle-container {
             display: flex;
             align-items: center;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             user-select: none;
         }
 
         .toggle-switch {
             position: relative;
-            width: 40px;
-            height: 20px;
+            width: 36px;
+            height: 18px;
             background-color: #ccc;
             border-radius: 20px;
-            margin-left: 10px;
+            margin-left: 8px;
             transition: background-color 0.3s;
         }
 
         .toggle-switch::after {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background-color: white;
             border-radius: 50%;
             top: 2px;
             left: 2px;
             transition: transform 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        input[type="checkbox"]:checked + .toggle-switch {
-            background-color: var(--success);
-        }
+        input[type="checkbox"]:checked + .toggle-switch { background-color: var(--success); }
+        input[type="checkbox"]:checked + .toggle-switch::after { transform: translateX(18px); }
+        input[type="checkbox"] { display: none; }
 
-        input[type="checkbox"]:checked + .toggle-switch::after {
-            transform: translateX(20px);
-        }
-
-        input[type="checkbox"] {
-            display: none;
-        }
-
+        /* Soru Alanı */
         .quiz-content {
-            overflow-y: auto;
-            flex-grow: 1;
-            padding-right: 5px;
+            flex: 0 0 auto; /* Esnemesin, içeriği kadar yer kaplasın */
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
         }
 
         .question-box {
             font-size: 1.1rem;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             line-height: 1.4;
             font-weight: 600;
+            color: #222;
         }
 
         .options {
@@ -120,18 +118,17 @@
         .option-btn {
             padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 6px;
             background: white;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             font-size: 0.95rem;
             text-align: left;
             width: 100%;
-            position: relative;
         }
 
         .option-btn:hover:not(:disabled) {
-            background-color: #f8f9fa;
+            background-color: #f1f3f5;
             border-color: var(--primary);
         }
 
@@ -147,50 +144,52 @@
             border-color: var(--error);
         }
         
-        .option-btn:disabled {
-            cursor: default;
-            opacity: 0.9;
-        }
+        .option-btn:disabled { cursor: default; opacity: 0.9; }
 
-        /* Navigation Buttons */
+        /* Alt Butonlar */
         .buttons-row {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px; /* Grid ile arasına biraz boşluk */
+            flex-shrink: 0;
         }
 
         .btn {
             flex: 1;
             padding: 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 1rem;
+            font-weight: 600;
             color: white;
             transition: opacity 0.2s;
         }
 
         .btn-next { background-color: var(--primary); }
         .btn-prev { background-color: #6c757d; }
-        .btn-warning { background-color: #e0a800; color: #fff; }
-        
+        .btn-warning { background-color: #ffc107; color: #333; }
         .btn:hover { opacity: 0.9; }
         .btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-        /* Question Navigation Grid */
+        /* Navigasyon Grid Container */
         .nav-grid-container {
-            margin-top: auto;
+            margin-top: 0; /* Artık auto değil, hemen butonların altında */
             border-top: 1px solid #eee;
             padding-top: 15px;
+            flex-shrink: 0;
         }
         
+        /* Gridin Kendisi */
         .nav-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            /* Kutucuklar ekran genişliğine göre sığabildiği kadar yan yana dizilsin */
+            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); 
             gap: 6px;
-            max-height: 150px;
-            overflow-y: auto;
+            /* Scroll KALDIRILDI, tümünü göster */
+            max-height: none; 
+            overflow-y: visible;
         }
 
         .nav-item {
@@ -207,18 +206,19 @@
             transition: transform 0.1s;
         }
 
-        .nav-item:hover { transform: scale(1.05); }
         .nav-item.active { border: 2px solid var(--primary); box-sizing: border-box; }
         .nav-item.correct { background-color: var(--success); color: white; }
         .nav-item.wrong { background-color: var(--error); color: white; }
 
-        /* Result Screen */
+        /* Sonuç Ekranı */
         #result-screen {
             text-align: center;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            height: 100%;
+            padding: 20px 0;
         }
 
         .score-circle {
@@ -232,17 +232,25 @@
             justify-content: center;
             align-items: center;
             margin: 20px auto;
-            box-shadow: 0 5px 15px rgba(0,86,179,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .score-number { font-size: 2.2rem; font-weight: bold; display: none; /* Puan gizlendi, sadece yüzde */ }
-        .score-percent { font-size: 2rem; font-weight: bold; }
-        .score-label { font-size: 0.9rem; opacity: 0.8; margin-top: 5px; }
+        .score-percent { font-size: 2.5rem; font-weight: bold; }
+        .score-label { font-size: 0.9rem; opacity: 0.9; margin-top: 2px; }
+        
+        #result-message {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+        }
 
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        /* Scrollbar Styling (Container için) */
+        .container::-webkit-scrollbar { width: 8px; }
+        .container::-webkit-scrollbar-track { background: #f1f1f1; }
+        .container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
     </style>
 </head>
@@ -250,8 +258,7 @@
 
 <div class="container" id="quiz-container">
     <div class="info-bar">
-        <span id="question-count">Soru: 1/50</span>
-        
+        <span id="question-count">Soru: 1/82</span>
         <label class="toggle-container">
             Doğruysa Otomatik Geç
             <input type="checkbox" id="auto-advance-toggle">
@@ -260,12 +267,8 @@
     </div>
 
     <div class="quiz-content">
-        <div class="question-box" id="question-text">
-            Yükleniyor...
-        </div>
-
-        <div class="options" id="options-container">
-            </div>
+        <div class="question-box" id="question-text">Yükleniyor...</div>
+        <div class="options" id="options-container"></div>
     </div>
 
     <div class="buttons-row">
@@ -274,19 +277,18 @@
     </div>
 
     <div class="nav-grid-container">
-        <div style="font-size: 0.8rem; color:#666; margin-bottom:5px; text-align:center;">Hızlı Erişim</div>
-        <div class="nav-grid" id="nav-grid">
-            </div>
+        <div style="font-size: 0.8rem; color:#888; margin-bottom:10px; text-align:center; font-weight:600;">Hızlı Erişim</div>
+        <div class="nav-grid" id="nav-grid"></div>
     </div>
 </div>
 
 <div class="container" id="result-screen">
-    <h1 id="result-title">Test Tamamlandı!</h1>
-    <div class="score-circle">
+    <h1 id="result-title">Test Sonucu</h1>
+    <div class="score-circle" id="score-circle-bg">
         <span class="score-percent" id="final-percent">%0</span>
-        <span class="score-label">BAŞARI</span>
+        <span class="score-label">PUAN</span>
     </div>
-    <p id="result-message" style="font-size:1.1rem; margin-bottom: 20px;"></p>
+    <div id="result-message"></div>
     
     <div style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
         <button class="btn btn-warning" id="retry-wrong-btn" onclick="startWrongQuiz()" style="display:none">Sadece Yanlışları Çöz</button>
@@ -295,7 +297,6 @@
 </div>
 
 <script>
-    // Tüm soruların ana listesi
     const masterQuestions = [
         { q: "Havacılık faaliyetleri kaça ayrılır?", a: ["Üçe", "İkiye", "Dörde", "Beşe"], correct: 1 },
         { q: "Devlet hava araçları nelerdir?", a: ["Askerî, gümrük, polis", "Yolcu, kargo, eğitim", "Tarım, balon, planör", "Helikopter, jet, planör"], correct: 0 },
@@ -346,16 +347,47 @@
         { q: "Phraseology neden kullanılır?", a: ["Zaman kazanmak", "Yanlış anlamaları önlemek", "Eğitim süresini kısaltmak", "Şifreli iletişim sağlamak"], correct: 1 },
         { q: "Pilotlar için minimum İngilizce seviyesi nedir?", a: ["ICAO Level 2", "ICAO Level 3", "ICAO Level 4", "ICAO Level 5"], correct: 2 },
         { q: "LAPL ve ATPL farkı nedir?", a: ["LAPL en yüksek, ATPL en düşük", "LAPL hafif, ATPL havayolu pilot lisansıdır", "Aynıdır", "ATPL planör içindir"], correct: 1 },
-        { q: "Havacılığın temel amacı nedir?", a: ["Hızlı ulaşım", "Emniyetli, sürdürülebilir, çevreye duyarlı ulaşım", "Turistik faaliyetleri artırmak", "Yakıt tüketimini artırmak"], correct: 1 }
+        { q: "Havacılığın temel amacı nedir?", a: ["Hızlı ulaşım", "Emniyetli, sürdürülebilir, çevreye duyarlı ulaşım", "Turistik faaliyetleri artırmak", "Yakıt tüketimini artırmak"], correct: 1 },
+        { q: "ICAO Kodlarına göre ülkemizdeki havaalanları hangi harf ile başlamaktadır?", a: ["T", "L", "E", "K"], correct: 1 },
+        { q: "Havadan hafif hava araçları nelerdir?", a: ["Helikopter ve Planör", "Uçak ve Jet", "Balon ve Zeplin", "İHA ve SİHA"], correct: 2 },
+        { q: "Bakımın yapıldığı yere göre bakım türleri hangileridir?", a: ["A ve C Bakımı", "Önleyici ve Düzenleyici", "Hat Bakımı ve Üs Bakımı", "Periyodik ve Arıza"], correct: 2 },
+        { q: "Bakım personelinin lisans kategorileri hangisinde doğru verilmiştir?", a: ["A, B1, B2, C", "P1, P2, P3", "L1, L2, L3", "Tekniker, Mühendis, Usta"], correct: 0 },
+        { q: "İber-Amerika Konferansı'nın diğer adı nedir?", a: ["Paris Antlaşması", "Varşova Konvansiyonu", "Madrid Antlaşması", "Şikago Sözleşmesi"], correct: 2 },
+        { q: "Hava Taksi işletmeciliği için maksimum koltuk sayısı kaçtır?", a: ["9", "14", "19", "25"], correct: 2 },
+        { q: "Havayolu İşletmeciliği tescil belgesinde aşağıdakilerden hangisi yer ALMAZ?", a: ["İşleticinin adı", "Kullanılacak uçak tipleri", "Uçak Sigorta Bedeli", "İzin verilen operasyonlar"], correct: 2 },
+        { q: "Hava Trafik Kontrolörünün değiştirebileceği uçuş parametreleri nelerdir?", a: ["Motor gücü, Yakıt miktarı", "Uçuş başı, Hız, İrtifa", "Yolcu sayısı, Kargo yükü", "Kalkış saati, İniş takımı"], correct: 1 },
+        { q: "Aşağıdakilerden hangisi Hava Trafik Kontrol Hizmetlerinden (ATC) biridir?", a: ["Meydan Kontrol", "Arama Kurtarma", "Gümrük Kontrol", "Bilet Kontrol"], correct: 0 },
+        { q: "Aşağıdakilerden hangisi Uluslararası Sivil Havacılık kuruluşlarından DEĞİLDİR?", a: ["EASA", "IATA", "EUROCONTROL", "ENAC"], correct: 3 },
+        { q: "Bir uçağın kalkış için hareket etmesinden, inip park etmesine kadar geçen süreye ne denir?", a: ["Uçuş Saati", "Mesai Saati", "Blok Saat", "Sefer Süresi"], correct: 2 },
+        { q: "Yolcunun uçağa binişine kadar verilen hizmete ne ad verilir?", a: ["Boarding", "Check-In", "Handling", "Catering"], correct: 1 },
+        { q: "Uçağın Tip Yetkisini (Type Certificate) neresi verir?", a: ["Tescil Eden Ülke", "Üretildiği Ülke", "İşletildiği Ülke", "Pilotun Ülkesi"], correct: 1 },
+        { q: "Sürekli Uçuşa Elverişlilik Sertifikasını kim verir?", a: ["Üretici Firma", "Üretildiği Ülke", "Hava aracını Tescil Eden Ülke", "EASA"], correct: 2 },
+        { q: "Havacılık personeli lisanslarında 'BPL' neyi ifade eder?", a: ["Balon Pilot Lisansı", "Büyük Pilot Lisansı", "Bölgesel Pilot Lisansı", "Başlangıç Pilot Lisansı"], correct: 0 },
+        { q: "Uyarı hizmetleri (Alerting Service) kimlere verilir?", a: ["Sadece askeri uçaklara", "Sadece yolcu uçaklarına", "Hava trafik hizmeti sağlanan ve uçuş planı dolduran tüm uçaklara", "Sadece acil durum bildiren uçaklara"], correct: 2 },
+        { q: "Paris Antlaşması'nın tam adı nedir?", a: ["Uluslararası Sivil Havacılık Anlaşması", "Hava Seyrüseferinin Düzenlenmesine Dair Anlaşma", "Hava Yolu Taşıma Sözleşmesi", "Avrupa Hava Sahası Anlaşması"], correct: 1 },
+        { q: "Yapılış amacına göre bakım türleri nelerdir?", a: ["Hat ve Üs", "Ağır ve Hafif", "Önleyici ve Düzenleyici", "Yaz ve Kış"], correct: 2 },
+        { q: "Aşağıdakilerden hangisi bir havacılık sözleşmesi DEĞİLDİR?", a: ["Pekin", "Paris", "Madrid", "Şikago"], correct: 0 },
+        { q: "Aşağıdakilerden hangisi havaalanlarındaki 'Havacılık Dışı Hizmetler'den biridir?", a: ["Yer hizmetleri", "Yakıt ikmali", "Eğlence ve Bankacılık hizmetleri", "Uçak bakımı"], correct: 2 },
+        { q: "Programlı bakım için gerekli dokümanlardan 'MEL'in açılımı nedir?", a: ["Maximum Equipment List", "Minimum Equipment List (Asgari Teçhizat Listesi)", "Maintenance Equipment Log", "Main Engine List"], correct: 1 },
+        { q: "Yetkinlik Bazlı Eğitim (CBTA) neye dayalı değerlendirme yapar?", a: ["Ezbere", "Yazılı sınava", "Performansa", "Ders saatine"], correct: 2 },
+        { q: "EASA'nın görevlerinden olmayan hangisidir?", a: ["Havacılık emniyetini geliştirmek", "Üye devletlerin LEHİNE karar vermek", "Sertifikasyon yapmak", "Eğitim ve denetim yapmak"], correct: 1 },
+        { q: "Uçuş devam ederken (seferler arası) yapılan bakım türü genellikle hangisidir?", a: ["Üs Bakımı", "Ağır Bakım", "Hat Bakımı", "Depo Bakımı"], correct: 2 },
+        { q: "Havacılık telsiz frekans aralığı nedir?", a: ["88.0 - 108.0 MHz", "118.000 - 137.000 MHz", "400 - 500 MHz", "2.4 - 5 GHz"], correct: 1 },
+        { q: "ATSEP personelinin görevi nedir?", a: ["Uçak kullanmak", "Bilet kesmek", "CNS (Haberleşme, Seyrüsefer, Gözetim) sistemlerinin bakımını yapmak", "Bagaj taşımak"], correct: 2 },
+        { q: "Uçuş Harekat Uzmanının (Dispatcher) görevi nedir?", a: ["Uçağı tamir etmek", "Uçuş planlaması yapmak ve uçuşu izlemek", "Yolculara servis yapmak", "Hava trafik kontrolü yapmak"], correct: 1 },
+        { q: "Döner kanatlı hava araçlarında (helikopter) kullanılan motor tipi nedir?", a: ["Pistonlu", "Turbofan", "Turboşaft", "Elektrikli"], correct: 2 },
+        { q: "ICAO Annex 1 hangi konuyu kapsar?", a: ["Havaalanları", "Personel Lisanslandırma", "Güvenlik", "Hava Kuralları"], correct: 1 },
+        { q: "1 NM (Deniz Mili) kaç metredir?", a: ["1000", "1609", "1852", "2000"], correct: 2 },
+        { q: "Hangisi IATA'nın görevlerinden biridir?", a: ["Hava sahasını yönetmek", "Lisans vermek", "Havayolu endüstrisini temsil etmek ve liderlik etmek", "Uçak üretmek"], correct: 2 },
+        { q: "Hava Akış Yönetimi (Network Flow) uçuştan kaç gün önce başlar?", a: ["1 gün", "3 gün", "6 gün", "1 ay"], correct: 2 },
+        { q: "Döner kanatlı hava aracı hangisidir?", a: ["Planör", "Zeplin", "Gyroplane / Helikopter", "Jet"], correct: 2 }
     ];
 
-    // Değişkenler
-    let activeQuestions = []; // Şu anda çözülen soru seti
+    let activeQuestions = [];
     let currentQuestionIndex = 0;
-    let questionStatus = []; // 'correct', 'wrong', null
+    let questionStatus = [];
     let score = 0;
 
-    // HTML Elemanları
     const questionText = document.getElementById("question-text");
     const optionsContainer = document.getElementById("options-container");
     const nextBtn = document.getElementById("next-btn");
@@ -367,8 +399,8 @@
     const resultTitle = document.getElementById("result-title");
     const retryWrongBtn = document.getElementById("retry-wrong-btn");
     const autoAdvanceToggle = document.getElementById("auto-advance-toggle");
+    const scoreCircleBg = document.getElementById("score-circle-bg");
 
-    // Yardımcı Fonksiyon: Karıştırma
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -377,7 +409,6 @@
         return array;
     }
 
-    // Navigasyon Gridini oluştur
     function renderGrid() {
         navGrid.innerHTML = "";
         activeQuestions.forEach((_, index) => {
@@ -387,7 +418,6 @@
             
             if (questionStatus[index] === 'correct') item.classList.add("correct");
             else if (questionStatus[index] === 'wrong') item.classList.add("wrong");
-            
             if (index === currentQuestionIndex) item.classList.add("active");
             
             item.onclick = () => jumpToQuestion(index);
@@ -397,11 +427,10 @@
 
     function loadQuestion() {
         const currentQ = activeQuestions[currentQuestionIndex];
-        
         questionText.textContent = `${currentQuestionIndex + 1}. ${currentQ.q}`;
         questionCount.textContent = `Soru: ${currentQuestionIndex + 1}/${activeQuestions.length}`;
-        
         optionsContainer.innerHTML = "";
+        
         const isAnswered = questionStatus[currentQuestionIndex] !== null;
 
         currentQ.a.forEach((option, index) => {
@@ -411,11 +440,7 @@
             
             if (isAnswered) {
                 btn.disabled = true;
-                if (index === currentQ.correct) {
-                    btn.classList.add("correct");
-                }
-                // Yanlış cevaplanan butonu isterseniz burada işaretleyebilirsiniz
-                // Şu an sadece doğruyu gösteriyoruz temiz görünüm için.
+                if (index === currentQ.correct) btn.classList.add("correct");
             } else {
                 btn.onclick = () => checkAnswer(index, btn);
             }
@@ -428,13 +453,7 @@
         }
 
         prevBtn.disabled = currentQuestionIndex === 0;
-        
-        if (currentQuestionIndex === activeQuestions.length - 1) {
-            nextBtn.textContent = "Testi Bitir";
-        } else {
-            nextBtn.textContent = "Sonraki Soru →";
-        }
-
+        nextBtn.textContent = currentQuestionIndex === activeQuestions.length - 1 ? "Testi Bitir" : "Sonraki Soru →";
         renderGrid();
     }
 
@@ -443,33 +462,18 @@
         const correctIndex = currentQ.correct;
         const buttons = optionsContainer.getElementsByClassName("option-btn");
 
-        // Tüm butonları kilitle
-        for (let button of buttons) {
-            button.disabled = true;
-        }
+        for (let button of buttons) button.disabled = true;
 
         if (selectedIndex === correctIndex) {
-            // DOĞRU CEVAP
             btn.classList.add("correct");
             questionStatus[currentQuestionIndex] = 'correct';
             score++;
-            
-            // Otomatik geçiş kontrolü
-            if (autoAdvanceToggle.checked) {
-                // Kullanıcı yeşil rengi görsün diye hafif bir gecikme (1000ms = 1 saniye)
-                setTimeout(() => {
-                    nextQuestion();
-                }, 500);
-            }
-
+            if (autoAdvanceToggle.checked) setTimeout(nextQuestion, 800);
         } else {
-            // YANLIŞ CEVAP
             btn.classList.add("wrong");
             buttons[correctIndex].classList.add("correct");
             questionStatus[currentQuestionIndex] = 'wrong';
-            // Yanlış cevapta otomatik geçiş yapmıyoruz ki kullanıcı hatasını görsün.
         }
-
         renderGrid();
     }
 
@@ -502,31 +506,25 @@
         const resultMessage = document.getElementById("result-message");
 
         const total = activeQuestions.length;
-        const percent = Math.round((score / total) * 100);
+        const percent = total === 0 ? 0 : Math.round((score / total) * 100);
         finalPercentElem.textContent = `%${percent}`;
 
-        // Yanlış cevap var mı kontrol et
         const hasWrongAnswers = questionStatus.includes('wrong');
-        
-        if (hasWrongAnswers) {
-            retryWrongBtn.style.display = "block";
-            retryWrongBtn.textContent = `Sadece Yanlışları Çöz (${total - score} Soru)`;
-        } else {
-            retryWrongBtn.style.display = "none";
-        }
+        retryWrongBtn.style.display = hasWrongAnswers ? "block" : "none";
+        if(hasWrongAnswers) retryWrongBtn.textContent = `Sadece Yanlışları Çöz (${total - score} Soru)`;
 
-        if (percent >= 90) {
-            resultMessage.textContent = "Mükemmel! Konuya hakimsin.";
+        if (percent >= 70) {
+            resultMessage.textContent = "BAŞARILI";
             resultMessage.style.color = "var(--success)";
-        } else if (percent >= 70) {
-            resultMessage.textContent = "Gayet iyi, tebrikler!";
-            resultMessage.style.color = "var(--primary)";
-        } else if (percent >= 50) {
-            resultMessage.textContent = "Fena değil, ama tekrar yapmalısın.";
-            resultMessage.style.color = "#d68910";
+            resultMessage.style.backgroundColor = "#d4edda";
+            resultMessage.style.border = "1px solid #c3e6cb";
+            scoreCircleBg.style.background = "var(--success)";
         } else {
-            resultMessage.textContent = "Çalışmaya ihtiyacın var.";
+            resultMessage.textContent = "BAŞARISIZ";
             resultMessage.style.color = "var(--error)";
+            resultMessage.style.backgroundColor = "#f8d7da";
+            resultMessage.style.border = "1px solid #f5c6cb";
+            scoreCircleBg.style.background = "var(--error)";
         }
     }
 
@@ -539,10 +537,6 @@
 
     function startWrongQuiz() {
         const wrongQuestions = activeQuestions.filter((q, index) => questionStatus[index] === 'wrong');
-        if(wrongQuestions.length === 0) {
-            alert("Yanlış cevaplanmış soru bulunamadı.");
-            return;
-        }
         activeQuestions = wrongQuestions;
         shuffleArray(activeQuestions);
         resetQuizState();
@@ -553,14 +547,11 @@
         currentQuestionIndex = 0;
         score = 0;
         questionStatus = new Array(activeQuestions.length).fill(null);
-        
         resultScreen.style.display = "none";
         quizContainer.style.display = "flex";
-        
         loadQuestion();
     }
 
-    // Başlangıç
     window.onload = startFullQuiz;
 
 </script>
